@@ -1,9 +1,9 @@
-use formality_logic::{prove_universal_goal, UniversalGoalResult};
+use formality_logic::{prove_universal_goal, prove_goal, UniversalGoalResult, GoalResult};
 use formality_logic::{Db, Env};
 use formality_types::{
     cast::Upcast,
     derive_links,
-    grammar::{Fallible, Goal},
+    grammar::{Fallible, Goal, Exists},
     parse::term,
 };
 
@@ -45,5 +45,19 @@ pub fn test_can_prove_goal(program_text: &str, goal: &str) -> Fallible<Universal
         let env = Env::default();
         let goal: Goal = term(goal);
         Ok(prove_universal_goal(&db, &env, &[], &goal.upcast()))
+    })
+}
+
+pub fn test_can_prove_exists(program_text: &str, goal: &str) -> Fallible<GoalResult> {
+    formality_core::with_tracing_logs(|| -> Fallible<GoalResult> {
+        let rust_program: grammar::Program = term(program_text);
+        let decl_program = rust_program.to_decl()?;
+        let db = Db::new(decl_program);
+        
+        let mut env = Env::default();
+
+        let Exists(binder) = term(goal);
+        let goal = env.instantiate_existentially(&binder);
+        Ok(prove_goal(&db, &env, &[], &goal))
     })
 }

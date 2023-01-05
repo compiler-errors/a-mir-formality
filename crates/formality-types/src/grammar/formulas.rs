@@ -324,6 +324,9 @@ impl DowncastTo<GoalData> for Goal {
     }
 }
 
+#[term]
+pub struct Exists(pub Binder<Goal>);
+
 pub type Goals = Vec<Goal>;
 
 #[term]

@@ -37,6 +37,8 @@ fn prove_goal(
     assumptions: &ElaboratedHypotheses,
     goal: &Goal,
 ) -> Set<CosldResult> {
+    let goal = env.refresh_inference_variables(goal);
+
     match goal.data() {
         GoalData::Atomic(apr) => {
             if db.force_ambiguous(env, apr) {
